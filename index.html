@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"  crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <br>
+        <div class="jumbotron">
+            <h1 class="display-4"> Send Message</h1>
+            <br>
+            <input id = "name" class="form-control" placeholder="Name">
+            <br>
+            <textarea id = "message" class="form-control" placeholder="Message"></textarea>
+            <br>
+            <button id = "send" class="btn btn-success">Send</button>
+        </div>
+
+        <div id="messages">
+
+        </div>
+    </div>
+
+    <script>
+        var socket = io();
+        $(() => {
+            console.log("document ready");
+            $('#send').click( () => {
+                //addMessages({name:'Tim',message:'hey from tim'});
+                var n = $('#name').val();
+                var m = $('#message').val();
+                var message = {name:n,message:m};
+                console.log(message);
+                postMessages(message);
+                $('#name').val('');
+                $('#message').val('');
+            })
+            getMessages();
+        })
+
+        //after getting this event with message as data it will be triggered
+        socket.on('new message',(m) => {
+            addMessages(m);
+        })
+
+
+        //add a function to add messages
+        function addMessages(message) {
+            $('#messages').append(`<h4> ${message.name}</h4> <p> ${message.message}</p>`)
+        }
+
+        //get request using jqery ajax
+        function getMessages() {
+            $.get('http://localhost:3000/messages',(data) => {
+                //console.log(data);
+                data.forEach(element => {
+                    addMessages(element);
+                },this);
+            })
+        }
+        
+        //post request
+        function postMessages(message) {
+            $.post('http://localhost:3000/messages',message)
+        }
+    </script>
+</body>
+</html>
